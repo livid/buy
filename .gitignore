@@ -1,0 +1,4 @@
+__pycache__/
+.venv
+.python-version
+id.json
