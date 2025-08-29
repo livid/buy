@@ -3,7 +3,7 @@
 A small CLI to buy a token on Solana using Jupiter swap API, with the token mint configured in `config.py`.
 
 - Validates amount of SOL (first arg)
-- Builds swap using Jupiter v6 and signs with `id.json` keypair
+- Builds swap using Jupiter's official API (`/swap/v1/`) and signs with `id.json` keypair
 
 ## Setup
 
@@ -11,6 +11,7 @@ A small CLI to buy a token on Solana using Jupiter swap API, with the token mint
   - `mint`: token mint to buy
   - `rpc`: your RPC endpoint URL
 - Place your Solana keypair in `id.json` (array of 64 or 32 integers)
+- Optional: Set `JUPITER_API_KEY` environment variable for higher rate limits
 
 Create venv and install deps:
 
@@ -86,4 +87,9 @@ Options:
 - `--yes` skip confirmation
 - `--no-dry-run` to broadcast
 
-Note: Uses Jupiter quote/swap APIs and your RPC from `config.py`.
+**API Information:**
+- Uses Jupiter's official API endpoints (`lite-api.jup.ag/swap/v1/`)
+- Supports optional API key for paid plans (set `JUPITER_API_KEY` environment variable)
+- Free tier available without API key
+
+Note: Uses Jupiter's current swap API and your RPC from `config.py`.
