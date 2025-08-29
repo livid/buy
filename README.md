@@ -92,4 +92,37 @@ Options:
 - Supports optional API key for paid plans (set `JUPITER_API_KEY` environment variable)
 - Free tier available without API key
 
-Note: Uses Jupiter's current swap API and your RPC from `config.py`.
+## Recurring Usage with buy.sh
+
+For automated recurring purchases (dollar-cost averaging), use the included `buy.sh` script:
+
+```bash
+# Make sure it's executable
+chmod +x buy.sh
+
+# Run recurring purchases
+./buy.sh
+```
+
+The script will:
+- Execute 30 purchases of 0.01 SOL each
+- Use 25 basis points (0.25%) slippage
+- Wait 5 minutes (300 seconds) between purchases
+- Automatically confirm each transaction
+
+### Customizing Parameters
+
+Edit `buy.sh` to modify the default values:
+
+```bash
+ITERATIONS=30   # Number of purchases
+SIZE=0.01      # SOL amount per purchase
+SLIPPAGE=25    # Slippage in basis points (25 = 0.25%)
+SLEEP=300      # Seconds between purchases
+```
+
+**Important Notes:**
+- Ensure sufficient SOL balance for all planned purchases
+- Monitor your wallet and the script's progress
+- Consider network congestion and transaction fees
+- The script runs automatically - use `Ctrl+C` to stop if needed
