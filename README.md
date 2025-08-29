@@ -20,6 +20,52 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## id.json Keypair
+
+The `id.json` file contains your Solana keypair and should be treated with extreme care as it controls your wallet.
+
+### Creating a Vanity Address
+
+You can use `solana-keygen grind` to generate a keypair with a vanity address (custom prefix):
+
+```bash
+# Generate a keypair with address starting with "Buy"
+solana-keygen grind --starts-with Buy:1 --ignore-case
+
+# Generate a keypair with address ending with "SOL"
+solana-keygen grind --ends-with SOL:1 --ignore-case
+
+# Generate a keypair with specific prefix (case-sensitive)
+solana-keygen grind --starts-with abcd:1
+```
+
+This will output the keypair array that you can save to `id.json`.
+
+`solana-keygen` can be installed via:
+
+```
+brew install solana
+```
+
+### Securing Your Keypair
+
+**Important**: Always secure your `id.json` file with proper permissions:
+
+```bash
+# Set read-only permissions for owner only
+chmod 600 id.json
+
+# Verify permissions
+ls -la id.json
+# Should show: -rw------- 1 user group size date id.json
+```
+
+**Security Best Practices:**
+- Never share your `id.json` file or commit it to version control
+- Keep backups in secure, encrypted storage
+- Consider using a hardware wallet for large amounts
+- Use a separate keypair for testing/development
+
 ## Usage
 
 Dry-run (build but do not send):
