@@ -25,7 +25,6 @@ from requests import JSONDecodeError
 import config
 
 
-DEXSCREENER_URL = "https://api.dexscreener.com/tokens/v1/solana/"
 LAMPORTS_PER_SOL = 1_000_000_000
 
 # Use the official Jupiter API endpoints
@@ -69,19 +68,6 @@ def load_keypair_from_id_json(path: str = "id.json") -> Keypair:
     raise ValueError(
         "id.json must be a JSON array of integers or base58 string"
     )
-
-
-def get_pair_address(mint: str) -> str:
-    resp = requests.get(DEXSCREENER_URL + mint, timeout=15)
-    resp.raise_for_status()
-    arr = resp.json()
-    if not isinstance(arr, list) or not arr:
-        raise RuntimeError("DexScreener returned no pools for this mint")
-    pair = arr[0]
-    addr = pair.get("pairAddress")
-    if not addr:
-        raise RuntimeError("pairAddress missing in DexScreener response")
-    return addr
 
 
 def jupiter_quote(amount_lamports: int, out_mint: str, slippage_bps: int) -> dict:
@@ -257,15 +243,7 @@ def main(amount: float, slippage_bps: int, priority_fee: str, yes: bool, dry_run
     click.echo(f"RPC: {rpc_url}")
     click.echo(f"Amount SOL: {amount}")
 
-    # 1) Validate token via DexScreener and obtain pool address
-    try:
-        pair_addr = get_pair_address(mint)
-    except Exception as e:
-        click.echo(f"Failed to get pool from DexScreener: {e}", err=True)
-        sys.exit(1)
-    click.echo(f"Pool address (DexScreener): {pair_addr}")
-
-    # 2) Load wallet
+    # 1) Load wallet
     try:
         kp = load_keypair_from_id_json("id.json")
     except Exception as e:
@@ -274,7 +252,7 @@ def main(amount: float, slippage_bps: int, priority_fee: str, yes: bool, dry_run
     pubkey = str(kp.pubkey())
     click.echo(f"Wallet: {pubkey}")
 
-    # 3) Build buy transaction via Jupiter
+    # 2) Build buy transaction via Jupiter
     try:
         prio = None if priority_fee == "auto" else int(priority_fee)
         lamports = int(float(amount) * LAMPORTS_PER_SOL)
@@ -300,7 +278,7 @@ def main(amount: float, slippage_bps: int, priority_fee: str, yes: bool, dry_run
     if not yes:
         click.confirm("Proceed to send the transaction?", abort=True)
 
-    # 5) Sign and send
+    # 3) Sign and send
     try:
         result = send_signed_tx(b64_tx, kp, rpc_url)
     except Exception as e:
