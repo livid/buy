@@ -19,6 +19,7 @@ import base58
 from solana.rpc.api import Client
 from solana.rpc.core import RPCException
 from solders.keypair import Keypair
+from solders.pubkey import Pubkey
 from solders.transaction import VersionedTransaction
 from requests import JSONDecodeError
 
@@ -191,6 +192,18 @@ def send_signed_tx(b64_tx: str, kp: Keypair, rpc_url: str) -> SwapResult:
         raise RuntimeError(f"Transaction failed: {error_message.message}")
 
 
+def get_sol_balance(pubkey: str, rpc_url: str) -> float:
+    """Get SOL balance for a given public key."""
+    client = Client(rpc_url)
+    try:
+        balance_response = client.get_balance(Pubkey.from_string(pubkey))
+        balance_lamports = balance_response.value
+        return balance_lamports / LAMPORTS_PER_SOL
+    except Exception as e:
+        print(f"Failed to get SOL balance: {e}")
+        return 0.0
+
+
 def simulate_swap(
     b64_tx: str, kp: Keypair, rpc_url: str
 ) -> tuple[Optional[str], Optional[list[str]]]:
@@ -287,6 +300,11 @@ def main(amount: float, slippage_bps: int, priority_fee: str, yes: bool, dry_run
 
     click.echo(f"Tx signature: {result.signature}")
     click.echo(f"Explorer: {result.explorer_url}")
+    
+    # Print SOL balance after transaction
+    sol_balance = get_sol_balance(pubkey, rpc_url)
+    click.echo(f"Current SOL balance: {sol_balance:.6f} SOL")
+    
     if result.sim_err is not None:
         click.echo("RPC simulate error:")
         click.echo(str(result.sim_err))
